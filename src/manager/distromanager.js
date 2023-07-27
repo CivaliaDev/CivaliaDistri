@@ -49,6 +49,7 @@ async function obtenirStructureDossier(cheminDossier) {
       } else if (stat.isFile()) {
         const extension = path.extname(cheminElement);
         // Si c'est un fichier, l'ajouter directement au tableau
+        const fileName = String(element).split(`${extension}`).join('');
 
         // Obtenez juste le nom du dossier "required"
         const folderName = path.basename(path.dirname(cheminElement));
@@ -56,7 +57,7 @@ async function obtenirStructureDossier(cheminDossier) {
         let typeFM = "";
         let md5_File = "";
 
-        const id_File = String(element).toLowerCase().replace(/\s/g, '');
+        const id_File = String(fileName).toLowerCase().replace(/\s/g, '');
         
         if(folderName == "required"){
           typeFM = "ForgeMod"
@@ -76,7 +77,7 @@ async function obtenirStructureDossier(cheminDossier) {
 
         const fichier = {
           id: id_File,
-          nom: element,
+          nom: fileName,
           chemin: cheminElement, // Ajouter le chemin complet du fichier ici
           type: 'fichier',
           typeFM: typeFM,
