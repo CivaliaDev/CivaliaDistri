@@ -2,7 +2,8 @@
     "distro": {
         "forge": {
             "required": "",
-            "optional": ""
+            "optional": "",
+            "version": ""
         },
         "runtimes": {},
         "files": {}

@@ -49,20 +49,30 @@ async function obtenirStructureDossier(cheminDossier) {
       } else if (stat.isFile()) {
         const extentions = path.extname(cheminElement);
         // Si c'est un fichier, l'ajouter directement au tableau
-        const dirname = path.dirname(cheminElement);
-        const typeFM = "";
 
-        const id_File = element.toLowerCase().replace(/\s/g, '');
+        // Obtenez juste le nom du dossier "required"
+        const folderName = path.basename(path.dirname(cheminElement));
 
-        if(dirname == "required"){
+        let typeFM = "";
+        let md5_File = "";
+
+        const id_File = String(element).toLowerCase().replace(/\s/g, '');
+        
+        if(folderName == "required"){
           typeFM = "ForgeMod"
-        }else if(dirname == "optional"){
+        }else if(folderName == "optional"){
           typeFM = "ForgeModOptional"
-        }else if(dirname == "runtimes"){
+        }else if(folderName == "runtimes"){
           typeFM = "Java"
-        }else if(dirname == "files"){
+        }else if(folderName == "files"){
           typeFM = "RootFile"
+        }else if(folderName == "version"){
+          typeFM = "ForgeVersion"
         }
+
+        await exports.getMD5(cheminElement).then((md5) => {
+          md5_File = md5;
+        });  
 
         const fichier = {
           id: id_File,
@@ -70,7 +80,8 @@ async function obtenirStructureDossier(cheminDossier) {
           chemin: cheminElement, // Ajouter le chemin complet du fichier ici
           type: 'fichier',
           typeFM: typeFM,
-          extention: extentions
+          extention: extentions,
+          md5: md5_File
         };
         structure.push(fichier);
       }
@@ -107,31 +118,28 @@ exports.getFile = function () {
     const fichiers = await parcourirFichiers(structure);
     const cheminDossierPrincipal = AssetsManager.getDistro();
     let distribution = [];
+
     fichiers.map((fichier) => {
       // Prepare Var for insert in JSON
       const cheminFichier = path.join(fichier.chemin);
-
-      let md5_File = "";
       const size_File = exports.getSize(cheminFichier);
-      const relatifUrlRequired = path.relative(AssetsManager.getDistro(), fichier.chemin);
-      const url_File = path.join(EnvManager.getBase_url(), relatifUrlRequired);
-      const extention_File = fichier.extention;
+      const relatifUrlRequired = path.relative(EnvManager.getRoot(), fichier.chemin);
+      const url_File = path.join(EnvManager.getBase_url(), relatifUrlRequired).replace(/\\(?!civalia)/gi, '/').replace(/\\/gi, '//');
 
-      exports.getMD5(cheminFichier).then((md5) => {
-        md5_File = md5;
+      // Ajoutez chaque objet distribution nouvellement créé dans le tableauc
+      distribution.push({
+        id: fichier.id,
+        name: fichier.nom,
+        type: fichier.typeFM,
+        artifact: {
+          size: size_File,
+          url: url_File,
+          md5: fichier.md5,
+          extention: fichier.extention,
+        }
       });
-
-      console.log(url_File);
-      const dossierUp = path.join("/required/");
-
-      distribution += {
-        id = 
-      }
-
     });
+    distribution = JSON.stringify(distribution, null, 2);
+    fs.writeFileSync(EnvManager.getBuild() + "/distribution.json", distribution);
   });
-}
-
-exports.generateFileJson = function () {
-
 }

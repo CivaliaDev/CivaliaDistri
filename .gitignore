@@ -1,3 +1,5 @@
 /node_modules/
+/distro/
+/build/
 
 package-lock.json
