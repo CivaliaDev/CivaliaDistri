@@ -1,0 +1,10 @@
+{
+    "distro": {
+        "forge": {
+            "required": "",
+            "optional": ""
+        },
+        "runtimes": {},
+        "files": {}
+    }
+}

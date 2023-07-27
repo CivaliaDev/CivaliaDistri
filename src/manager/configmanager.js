@@ -1,5 +1,8 @@
 const path = require("path");
 const fs = require("fs-extra");
+const EnvManager = require("./envmanager.js");
+
+const root = EnvManager.getRoot();
 const configPath = path.join(root, "src", "config");
 
 exports.getConfigPath = function(){
@@ -7,12 +10,12 @@ exports.getConfigPath = function(){
 }
 
 const folderJson = path.join(configPath, "folder.json");
-const firstlaunch = !fsexistsSync(folderJson);
+const firstlaunch = !fs.existsSync(folderJson);
 
 const DEFAULT_CONFIGFOLDER = {
     forge: {
-        required,
-        optional
+        required: "",
+        optional: ""
     },
     runtimes: {},
     instances: {},
@@ -25,18 +28,20 @@ exports.saveFolder = function() {
     fs.writeFileSync(folderJson, JSON.stringify(configFolder, null, 4));
 }
 
-exports.loadFolder = function() {
-    logger.log('Loading configs..');
-    let doLoad = true;
+exports.getFolderJson = function(){
+    return folderJson;
+}
 
-    exports.verifyAllFile();
+exports.loadFolder = function() {
+    console.log('Loading configs..');
+    let doLoad = true;
 
     if(!fs.existsSync(folderJson)) {
         fs.ensureDirSync(path.join(folderJson, '..'));
         
         doLoad = false;
         configFolder = DEFAULT_CONFIGFOLDER;
-        exports.save();
+        exports.saveFolder();
     }
     if(doLoad) {
         let doValidate = false;
@@ -45,19 +50,18 @@ exports.loadFolder = function() {
             doValidate = true;
         } 
         catch (err) {
-            logger.error(err);
-            logger.log('Configuration file contains malformed JSON or is corrupt.');
-            logger.log('Generating a new configuration file.');
+            console.error(err);
+            console.log('Configuration file contains malformed JSON or is corrupt.');
+            console.log('Generating a new configuration file.');
 
             fs.ensureDirSync(path.join(folderJson, '..'));
             configFolder = DEFAULT_CONFIGFOLDER;
-            exports.save();
+            exports.saveFolder();
         }
 
         if(doValidate) {
-            configFolder = validateKeySet(DEFAULT_CONFIG, configFolder);
-            exports.save();
+            exports.saveFolder();
         }
     }
-    logger.log('Successfully loaded.');
+    console.log('Successfully loaded.');
 }

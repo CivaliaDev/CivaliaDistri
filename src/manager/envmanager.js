@@ -20,3 +20,7 @@ exports.getRoot = function(){
 exports.getJava = function(){
     return java;
 }
+
+exports.getBuild = function(){
+    return root + "/build";
+}
