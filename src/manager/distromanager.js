@@ -47,7 +47,7 @@ async function obtenirStructureDossier(cheminDossier) {
         };
         structure.push(sousDossier);
       } else if (stat.isFile()) {
-        const extentions = path.extname(cheminElement);
+        const extension = path.extname(cheminElement);
         // Si c'est un fichier, l'ajouter directement au tableau
 
         // Obtenez juste le nom du dossier "required"
@@ -80,7 +80,7 @@ async function obtenirStructureDossier(cheminDossier) {
           chemin: cheminElement, // Ajouter le chemin complet du fichier ici
           type: 'fichier',
           typeFM: typeFM,
-          extention: extentions,
+          extension: extension,
           md5: md5_File
         };
         structure.push(fichier);
@@ -135,7 +135,7 @@ exports.getFile = function () {
           size: size_File,
           url: url_File,
           md5: fichier.md5,
-          extention: fichier.extention,
+          extension: fichier.extension,
         }
       });
     });
