@@ -1,0 +1,17 @@
+{
+  "name": "civaliadistri",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "fs-extra": "^11.1.1",
+    "path": "^0.12.7",
+    "yargs": "^17.7.2"
+  }
+}
