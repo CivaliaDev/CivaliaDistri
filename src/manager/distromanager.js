@@ -4,6 +4,7 @@ const ConfigManager = require("./configmanager.js");
 const EnvManager = require("./envmanager.js");
 const path = require("path");
 const { type } = require("os");
+const AdmZip = require('adm-zip');
 
 exports.getMD5 = function (file) {
   return new Promise((resolve, reject) => {
@@ -24,9 +25,66 @@ exports.getSize = function (file) {
     return fs.statSync(file).size;
 }
 
-exports.generateDistro = function (){
+exports.getDirectorySize = function (dirPath) {
+  return new Promise((resolve, reject) => {
+    let totalSize = 0;
+
+      function calculateSize(directory) {
+          const files = fs.readdirSync(directory);
+          
+          files.forEach(file => {
+              const filePath = path.join(directory, file);
+              const stats = fs.statSync(filePath);
+      
+              if (stats.isFile()) {
+                  totalSize += stats.size;
+              } else if (stats.isDirectory()) {
+                  calculateSize(filePath);
+              }
+          });
+      }
+
+      calculateSize(dirPath);
+      resolve(totalSize);
+  });
+};  
+
+let javaSizeFile;
+
+exports.generateDistro = async function (){
+  exports.compileJava().then((size) => {
+    javaSizeFile = size.toString();
+  });
   exports.getFile();
   
+}
+
+exports.compressJava = function (dossierACompresser, nomFichierZip){
+  if (!fs.existsSync(dossierACompresser)) {
+    console.log(`Le dossier '${dossierACompresser}' n'existe pas.`);
+    return;
+  }
+
+  const zip = new AdmZip();
+
+  function ajouterFichiersAuZip(cheminActuel, cheminArchive) {
+      const stat = fs.statSync(cheminActuel);
+      if (stat.isFile()) {
+          zip.addLocalFile(cheminActuel, cheminArchive);
+      } else if (stat.isDirectory()) {
+          const fichiers = fs.readdirSync(cheminActuel);
+          fichiers.forEach((fichier) => {
+              ajouterFichiersAuZip(
+                  path.join(cheminActuel, fichier),
+                  path.join(cheminArchive, fichier)
+              );
+          });
+      }
+  }
+
+  ajouterFichiersAuZip(dossierACompresser, nomFichierZip);
+
+  zip.writeZip(nomFichierZip);
 }
 
 async function obtenirStructureDossier(cheminDossier) {
@@ -73,7 +131,7 @@ async function obtenirStructureDossier(cheminDossier) {
 
         await exports.getMD5(cheminElement).then((md5) => {
           md5_File = md5;
-        });  
+        });
 
         const fichier = {
           id: id_File,
@@ -114,6 +172,14 @@ async function parcourirFichiers(structure, cheminActuel = '') {
   return fichiers;
 }
 
+exports.compileJava = async function(){
+  const javaSize = exports.getDirectorySize(EnvManager.getJava());
+  const folderName = path.basename(path.dirname(EnvManager.getJava()));
+  exports.compressJava(EnvManager.getJava(), AssetsManager.getRuntimes() +  folderName + ".zip");
+  console.log(javaSize);
+  return javaSize;
+}
+
 exports.getFile = function () {
   obtenirStructureDossier(AssetsManager.getDistro()).then(async (structure) => {
     const fichiers = await parcourirFichiers(structure);
@@ -123,10 +189,12 @@ exports.getFile = function () {
     fichiers.map((fichier) => {
       // Prepare Var for insert in JSON
       const cheminFichier = path.join(fichier.chemin);
-      const size_File = exports.getSize(cheminFichier);
+      let size_File = exports.getSize(cheminFichier);
       const relatifUrlRequired = path.relative(EnvManager.getRoot(), fichier.chemin);
       const url_File = path.join(EnvManager.getBase_url(), relatifUrlRequired).replace(/\\(?!civalia)/gi, '/').replace(/\\/gi, '//');
-
+      if(fichier.typeFM == "Java"){
+        size_File = javaSizeFile.toString();
+      }
       // Ajoutez chaque objet distribution nouvellement créé dans le tableauc
       distribution.push({
         id: fichier.id,

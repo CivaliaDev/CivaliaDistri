@@ -1,6 +1,7 @@
 const fs = require('fs-extra');
 const ConfigManager = require("./configmanager.js");
 const EnvManager = require("./envmanager.js");
+const path = require("path");
 
 exports.verifyInstall = function(){
     
@@ -52,3 +53,7 @@ exports.getFolderJson = function(){
 exports.getDistro = function(){
   return EnvManager.getRoot() + "/distro/";
 }
+
+exports.getRuntimes = function(){
+  return path.join(exports.getDistro(), "/runtimes/");
+} 
