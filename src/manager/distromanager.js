@@ -53,7 +53,7 @@ let javaSizeFile;
 
 exports.generateDistro = async function (){
   exports.compileJava().then((size) => {
-    javaSizeFile = size.toString();
+    javaSizeFile = parseInt(size);
   });
   exports.getFile();
   
@@ -176,7 +176,6 @@ exports.compileJava = async function(){
   const javaSize = exports.getDirectorySize(EnvManager.getJava());
   const folderName = path.basename(path.dirname(EnvManager.getJava()));
   exports.compressJava(EnvManager.getJava(), AssetsManager.getRuntimes() +  folderName + ".zip");
-  console.log(javaSize);
   return javaSize;
 }
 
@@ -193,7 +192,7 @@ exports.getFile = function () {
       const relatifUrlRequired = path.relative(EnvManager.getRoot(), fichier.chemin);
       const url_File = path.join(EnvManager.getBase_url(), relatifUrlRequired).replace(/\\(?!civalia)/gi, '/').replace(/\\/gi, '//');
       if(fichier.typeFM == "Java"){
-        size_File = javaSizeFile.toString();
+        size_File = javaSizeFile;
       }
       // Ajoutez chaque objet distribution nouvellement créé dans le tableauc
       distribution.push({
