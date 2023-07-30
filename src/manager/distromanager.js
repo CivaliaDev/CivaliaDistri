@@ -68,22 +68,21 @@ exports.compressJava = function (dossierACompresser, nomFichierZip){
   const zip = new AdmZip();
 
   function ajouterFichiersAuZip(cheminActuel, cheminArchive) {
-      const stat = fs.statSync(cheminActuel);
-      if (stat.isFile()) {
-          zip.addLocalFile(cheminActuel, cheminArchive);
-      } else if (stat.isDirectory()) {
-          const fichiers = fs.readdirSync(cheminActuel);
-          fichiers.forEach((fichier) => {
-              ajouterFichiersAuZip(
-                  path.join(cheminActuel, fichier),
-                  path.join(cheminArchive, fichier)
-              );
-          });
-      }
+    const stat = fs.statSync(cheminActuel);
+
+    if (stat.isFile()) {
+      zip.addLocalFile(cheminActuel, cheminArchive);
+    } else if (stat.isDirectory()) {
+      const fichiers = fs.readdirSync(cheminActuel);
+      fichiers.forEach((fichier) => {
+        const cheminComplet = path.join(cheminActuel, fichier);
+        const cheminDansArchive = cheminArchive ? path.join(cheminArchive, fichier) : fichier;
+        ajouterFichiersAuZip(cheminComplet, cheminDansArchive);
+      });
+    }
   }
 
-  ajouterFichiersAuZip(dossierACompresser, nomFichierZip);
-
+  ajouterFichiersAuZip(dossierACompresser, path.basename(dossierACompresser));
   zip.writeZip(nomFichierZip);
 }
 
@@ -174,8 +173,6 @@ async function parcourirFichiers(structure, cheminActuel = '') {
 
 exports.compileJava = async function(){
   const javaSize = exports.getDirectorySize(EnvManager.getJava());
-  const folderName = path.basename(path.dirname(EnvManager.getJava()));
-  exports.compressJava(EnvManager.getJava(), AssetsManager.getRuntimes() +  folderName + ".zip");
   return javaSize;
 }
 
