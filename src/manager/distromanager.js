@@ -47,7 +47,7 @@ exports.getDirectorySize = function (dirPath) {
       calculateSize(dirPath);
       resolve(totalSize);
   });
-};  
+};
 
 let javaSizeFile;
 
