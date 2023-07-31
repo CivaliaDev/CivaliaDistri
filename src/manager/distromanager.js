@@ -52,7 +52,7 @@ exports.getDirectorySize = function (dirPath) {
 let javaSizeFile;
 
 exports.generateDistro = async function (){
-  exports.compileJava(EnvManager.get).then((size) => {
+  exports.compileJava().then((size) => {
     javaSizeFile = parseInt(size);
   });
   exports.getFile();

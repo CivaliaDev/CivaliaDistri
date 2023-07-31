@@ -51,7 +51,7 @@ exports.getFolderJson = function(){
 }
 
 exports.getDistro = function(){
-  return EnvManager.getRoot() + "/distro/";
+  return path.join(EnvManager.getRoot(), "/distro/");
 }
 
 exports.getRuntimes = function(){
