@@ -4,7 +4,7 @@ const ConfigManager = require("./configmanager.js");
 const EnvManager = require("./envmanager.js");
 const path = require("path");
 const { type } = require("os");
-const AdmZip = require('adm-zip');
+const archiver = require('archiver');
 
 exports.getMD5 = function (file) {
   return new Promise((resolve, reject) => {
@@ -52,38 +52,29 @@ exports.getDirectorySize = function (dirPath) {
 let javaSizeFile;
 
 exports.generateDistro = async function (){
-  exports.compileJava().then((size) => {
+  exports.compileJava(EnvManager.get).then((size) => {
     javaSizeFile = parseInt(size);
   });
   exports.getFile();
   
 }
 
-exports.compressJava = function (dossierACompresser, nomFichierZip){
-  if (!fs.existsSync(dossierACompresser)) {
-    console.log(`Le dossier '${dossierACompresser}' n'existe pas.`);
-    return;
-  }
+exports.compressJava = function (dossierACompresser, archiveDestination){
+  const archive = archiver('zip', { zlib: { level: 9 } });
+  archive.on('error', function (err) {
+    throw err;
+  });
 
-  const zip = new AdmZip();
+  archive.on('end', function () {
+    console.log('Archive créée avec succès.');
+  });
 
-  function ajouterFichiersAuZip(cheminActuel, cheminArchive) {
-    const stat = fs.statSync(cheminActuel);
+  const output = fs.createWriteStream(path.resolve(archiveDestination));
+  archive.pipe(output);
 
-    if (stat.isFile()) {
-      zip.addLocalFile(cheminActuel, cheminArchive);
-    } else if (stat.isDirectory()) {
-      const fichiers = fs.readdirSync(cheminActuel);
-      fichiers.forEach((fichier) => {
-        const cheminComplet = path.join(cheminActuel, fichier);
-        const cheminDansArchive = cheminArchive ? path.join(cheminArchive, fichier) : fichier;
-        ajouterFichiersAuZip(cheminComplet, cheminDansArchive);
-      });
-    }
-  }
+  archive.directory(dossierACompresser, false);
 
-  ajouterFichiersAuZip(dossierACompresser, path.basename(dossierACompresser));
-  zip.writeZip(nomFichierZip);
+  archive.finalize();
 }
 
 async function obtenirStructureDossier(cheminDossier) {
@@ -173,6 +164,9 @@ async function parcourirFichiers(structure, cheminActuel = '') {
 
 exports.compileJava = async function(){
   const javaSize = exports.getDirectorySize(EnvManager.getJava());
+  const folderName = path.basename(path.dirname(EnvManager.getJava()));
+  const archiveDestination = path.join(AssetsManager.getRuntimes(), folderName + ".zip");
+  exports.compressJava(EnvManager.getJava(), archiveDestination);
   return javaSize;
 }
 
