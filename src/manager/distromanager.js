@@ -117,8 +117,6 @@ async function obtenirStructureDossier(cheminDossier) {
           typeFM = "RootFile"
         }else if(folderName == "version"){
           typeFM = "ForgeVersion"
-        }else{
-          return;
         }
 
         await exports.getMD5(cheminElement).then((md5) => {
@@ -186,6 +184,9 @@ exports.getFile = function () {
       const url_File = path.join(EnvManager.getBase_url(), relatifUrlRequired).replace(/\\(?!civalia)/gi, '/').replace(/\\/gi, '//');
       if(fichier.typeFM == "Java"){
         size_File = javaSizeFile;
+      }
+      if(fichier.name == ".htaccess"){
+        return;
       }
       // Ajoutez chaque objet distribution nouvellement créé dans le tableauc
       distribution.push({
