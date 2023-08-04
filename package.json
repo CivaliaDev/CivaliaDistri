@@ -1,18 +1,18 @@
 {
   "name": "civaliadistri",
   "version": "1.0.0",
-  "main": "src/index.js",
+  "private": false,
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node ./bin/www"
   },
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "archiver": "^5.3.1",
+    "child_process": "^1.0.2",
     "dotenv": "^16.3.1",
+    "express": "^4.18.2",
     "fs-extra": "^11.1.1",
     "path": "^0.12.7",
+    "ws": "^8.13.0",
     "yargs": "^17.7.2"
   }
 }
