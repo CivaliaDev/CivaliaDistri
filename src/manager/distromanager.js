@@ -117,6 +117,8 @@ async function obtenirStructureDossier(cheminDossier) {
           typeFM = "RootFile"
         }else if(folderName == "version"){
           typeFM = "ForgeVersion"
+        }else{
+          return;
         }
 
         await exports.getMD5(cheminElement).then((md5) => {
