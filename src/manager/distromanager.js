@@ -117,6 +117,10 @@ async function obtenirStructureDossier(cheminDossier) {
           typeFM = "RootFile"
         }else if(folderName == "version"){
           typeFM = "ForgeVersion"
+        }else if(folderName == "ressourcepacks"){
+          typeFM = "RessourcePack"
+        }else if(folderName == "shaderpacks"){
+          typeFM = "ShaderPack"
         }
 
         await exports.getMD5(cheminElement).then((md5) => {
