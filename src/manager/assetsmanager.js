@@ -54,6 +54,10 @@ exports.getDistro = function(){
   return path.join(EnvManager.getRoot(), "/distro/");
 }
 
+exports.getModRequired = function(){
+  return path.join(exports.getDistro(), "/forge/", "/required/");
+}
+
 exports.getRuntimes = function(){
   return path.join(exports.getDistro(), "/runtimes/");
 } 

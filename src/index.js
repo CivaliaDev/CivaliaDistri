@@ -1,5 +1,6 @@
 const argv = require('yargs').argv;
 const path = require("path");
+const fs = require("fs-extra");
 const AssetsManager = require("./manager/assetsmanager.js");
 const ConfigManager = require("./manager/configmanager.js");
 const EnvManager = require("./manager/envmanager.js");
@@ -11,8 +12,6 @@ let forge = EnvManager.getForge();
 const url_forge = `https://maven.minecraftforge.net/net/minecraftforge/forge/${forge}/forge-${forge}-installer.jar`;
 
 async function generateDistro(){
-    const fs = require('fs-extra');
-
     await AssetsManager.verifyBuild();
     await AssetsManager.creerStructureDossiers();
 
