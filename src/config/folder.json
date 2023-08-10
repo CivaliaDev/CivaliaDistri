@@ -3,8 +3,7 @@
         "forge": {
             "required": "",
             "optional": "",
-            "version": "",
-            "mods": ""
+            "version": ""
         },
         "runtimes": {},
         "files": {}
