@@ -152,8 +152,9 @@ async function parcourirFichiers(structure, cheminActuel = '') {
 
   await Promise.all(structure.map(async (element) => {
     if (element.type === 'fichier') {
-      // Si c'est un fichier, ajoutez-le à la liste des fichiers
-      fichiers.push(element);
+      if (path.basename(element.chemin) !== '.htaccess') {
+        fichiers.push(element);
+      }
       // Vous pouvez ajouter d'autres actions à effectuer avec le fichier ici
     } else if (element.type === 'dossier') {
       // Si c'est un dossier, appelez récursivement pour parcourir ses fichiers
@@ -188,9 +189,6 @@ exports.getFile = function () {
       const url_File = path.join(EnvManager.getBase_url(), relatifUrlRequired).replace(/\\(?!civalia)/gi, '/').replace(/\\/gi, '//');
       if(fichier.typeFM == "Java"){
         size_File = javaSizeFile;
-      }
-      if(fichier.name == ".htaccess"){
-        return;
       }
       // Ajoutez chaque objet distribution nouvellement créé dans le tableauc
       distribution.push({
