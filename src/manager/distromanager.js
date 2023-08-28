@@ -6,6 +6,9 @@ const path = require("path");
 const { type } = require("os");
 const archiver = require('archiver');
 
+let distribution = {};
+let maintenance = [];
+
 exports.getMD5 = function (file) {
   return new Promise((resolve, reject) => {
       const crypto = require('crypto');
@@ -52,11 +55,21 @@ exports.getDirectorySize = function (dirPath) {
 let javaSizeFile;
 
 exports.generateDistro = async function (){
-  exports.compileJava().then((size) => {
+  await exports.maintenance();
+  distribution.resources ??= [];
+  await exports.compileJava().then((size) => {
     javaSizeFile = parseInt(size);
   });
-  exports.getFile();
-  
+  await exports.getFile();
+  fs.writeFileSync(EnvManager.getBuild() + "/distribution.json", JSON.stringify(distribution, null, 2));
+  console.log(distribution);
+}
+
+exports.maintenance = async function(){
+  const maintenanceFileContent = fs.readFileSync(path.join(EnvManager.getConfig(), "maintenance.json"), 'utf8');
+  const maintenanceData = JSON.parse(maintenanceFileContent);
+
+  distribution.maintenance = maintenanceData.maintenance;
 }
 
 exports.compressJava = function (dossierACompresser, archiveDestination){
@@ -175,35 +188,32 @@ exports.compileJava = async function(){
   return javaSize;
 }
 
-exports.getFile = function () {
-  obtenirStructureDossier(AssetsManager.getDistro()).then(async (structure) => {
-    const fichiers = await parcourirFichiers(structure);
-    const cheminDossierPrincipal = AssetsManager.getDistro();
-    let distribution = [];
+exports.getFile = async function () {
+  const structure = await obtenirStructureDossier(AssetsManager.getDistro());
+  const fichiers = await parcourirFichiers(structure);
+  const cheminDossierPrincipal = AssetsManager.getDistro();
 
-    fichiers.map((fichier) => {
-      // Prepare Var for insert in JSON
-      const cheminFichier = path.join(fichier.chemin);
-      let size_File = exports.getSize(cheminFichier);
-      const relatifUrlRequired = path.relative(EnvManager.getRoot(), fichier.chemin);
-      const url_File = path.join(EnvManager.getBase_url(), relatifUrlRequired).replace(/\\(?!civalia)/gi, '/').replace(/\\/gi, '//');
-      if(fichier.typeFM == "Java"){
-        size_File = javaSizeFile;
+  fichiers.map((fichier) => {
+    // Prepare Var for insert in JSON
+    const cheminFichier = path.join(fichier.chemin);
+    let size_File = exports.getSize(cheminFichier);
+    const relatifUrlRequired = path.relative(EnvManager.getRoot(), fichier.chemin);
+    const url_File = path.join(EnvManager.getBase_url(), relatifUrlRequired).replace(/\\(?!civalia)/gi, '/').replace(/\\/gi, '//');
+    if(fichier.typeFM == "Java"){
+      size_File = javaSizeFile;
+    }
+    // Ajoutez chaque objet distribution nouvellement créé dans le tableauc
+    distribution.resources.push({
+      id: fichier.id,
+      name: fichier.nom,
+      type: fichier.typeFM,
+      artifact: {
+        size: size_File,
+        url: url_File,
+        md5: fichier.md5,
+        extension: fichier.extension,
       }
-      // Ajoutez chaque objet distribution nouvellement créé dans le tableauc
-      distribution.push({
-        id: fichier.id,
-        name: fichier.nom,
-        type: fichier.typeFM,
-        artifact: {
-          size: size_File,
-          url: url_File,
-          md5: fichier.md5,
-          extension: fichier.extension,
-        }
-      });
     });
-    distribution = JSON.stringify(distribution, null, 2);
-    fs.writeFileSync(EnvManager.getBuild() + "/distribution.json", distribution);
+    console.log(distribution.resources);
   });
 }

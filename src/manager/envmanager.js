@@ -24,3 +24,7 @@ exports.getJava = function(){
 exports.getBuild = function(){
     return root + "/build";
 }
+
+exports.getConfig = function(){
+    return root + "/src/" + "/config/";
+}
