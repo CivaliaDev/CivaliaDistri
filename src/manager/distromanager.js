@@ -182,7 +182,7 @@ async function parcourirFichiers(structure, cheminActuel = '') {
 
 exports.compileJava = async function(){
   const javaSize = exports.getDirectorySize(EnvManager.getJava());
-  const folderName = path.basename(path.dirname(EnvManager.getJava()));
+  const folderName = path.basename(EnvManager.getJava());
   const archiveDestination = path.join(AssetsManager.getRuntimes(), folderName + ".zip");
   exports.compressJava(EnvManager.getJava(), archiveDestination);
   return javaSize;
