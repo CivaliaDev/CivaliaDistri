@@ -15,12 +15,8 @@ await app.register(fastifyStatic, {
 })
 
 app.get("/distribution.json", async (req, res) => {
-    console.time("get /distribution.json " + req.id)
-
     const resources = await getResources()
     const maintenanceState = getMaintenanceState()
-
-    console.timeEnd("get /distribution.json " + req.id)
 
     return {
         maintenance: maintenanceState,
