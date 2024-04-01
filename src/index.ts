@@ -13,7 +13,7 @@ await app.register(fastifyStatic, {
     prefix: "/distro/"
 })
 
-app.get("/build/distribution.json", async (req, res) => {
+app.get("/distribution.json", async (req, res) => {
     const resources = await getResources(process.env.ROOT!)
     const maintenanceState = getMaintenanceState()
 
