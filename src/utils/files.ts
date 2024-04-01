@@ -29,7 +29,7 @@ export async function getResources(folder: string) {
             if (stat.isFile() && path.basename(elementPath) !== ".htaccess") {
                 const extension = path.extname(elementPath);
 
-                const currentFolder = path.dirname(elementPath).split(path.sep).at(-1)!;
+                const baseFolder = path.relative(folder, elementPath).split(path.sep)[0];
                 
                 const fileName = path.basename(element.split(`${extension}`).join(''));
                 const fileId = fileName.toLowerCase().replace(/\s/g, '');
@@ -37,7 +37,7 @@ export async function getResources(folder: string) {
                 const relativeUrlRequired = path.relative(env.ROOT, elementPath);
                 const fileUrl = path.join(env.BASE_URL, "distro", relativeUrlRequired).replace(/\\(?!civalia)/gi, '/').replace(/\\/gi, '//');
 
-                const type = folderMap[path.basename(currentFolder)] ?? ResourceType.Unknown;
+                const type = folderMap[baseFolder] ?? ResourceType.Unknown;
 
                 const file = {
                     id: fileId,
