@@ -57,44 +57,39 @@ export async function fetchResources(folder: string) {
         const files: Resource[] = []
 
         for (let element of elements) {
-            const elementPath = path.join(folder, element)
-
-            console.log("------------------")
-            console.log(element)
-            console.log(elementPath)
-            console.log("exists", existsSync(elementPath))
-
-            if (!existsSync(elementPath)) continue
-
-            const stat = await fs.stat(elementPath);
-
-            if (stat.isFile() && path.basename(elementPath) !== ".htaccess") {
-                const extension = path.extname(elementPath);
-
-                const baseFolder = path.dirname(path.relative(folder, elementPath));
-                
-                const fileName = path.basename(element.split(`${extension}`).join(''));
-                const fileId = fileName.toLowerCase().replace(/\s/g, '');
-
-                const relativeUrlRequired = path.relative(env.ROOT, elementPath);
-                const fileUrl = path.join(env.BASE_URL, "distro", relativeUrlRequired).replace(/\\(?!civalia)/gi, '/').replace(/\\/gi, '//');
-
-                const type = formattedFolderMap[Object.keys(formattedFolderMap).sort((a, b) => b.split(path.sep).length - a.split(path.sep).length).find(p => baseFolder.includes(p))!] ?? ResourceType.Unknown;
-
-                const file = {
-                    id: fileId,
-                    name: fileName,
-                    type,
-                    artifact: {
-                        extension,
-                        md5: await checksum(elementPath),
-                        size: type == ResourceType.Java ? javaInfo.size : stat.size,
-                        url: fileUrl
-                    }
-                } satisfies Resource
-
-                files.push(file)
-            }
+            try {
+                const elementPath = path.join(folder, element)
+        
+                const stat = await fs.stat(elementPath);
+    
+                if (stat.isFile() && path.basename(elementPath) !== ".htaccess") {
+                    const extension = path.extname(elementPath);
+    
+                    const baseFolder = path.dirname(path.relative(folder, elementPath));
+                    
+                    const fileName = path.basename(element.split(`${extension}`).join(''));
+                    const fileId = fileName.toLowerCase().replace(/\s/g, '');
+    
+                    const relativeUrlRequired = path.relative(env.ROOT, elementPath);
+                    const fileUrl = path.join(env.BASE_URL, "distro", relativeUrlRequired).replace(/\\(?!civalia)/gi, '/').replace(/\\/gi, '//');
+    
+                    const type = formattedFolderMap[Object.keys(formattedFolderMap).sort((a, b) => b.split(path.sep).length - a.split(path.sep).length).find(p => baseFolder.includes(p))!] ?? ResourceType.Unknown;
+    
+                    const file = {
+                        id: fileId,
+                        name: fileName,
+                        type,
+                        artifact: {
+                            extension,
+                            md5: await checksum(elementPath),
+                            size: type == ResourceType.Java ? javaInfo.size : stat.size,
+                            url: fileUrl
+                        }
+                    } satisfies Resource
+    
+                    files.push(file)
+                }
+            } catch {}
         }
 
         return files;
