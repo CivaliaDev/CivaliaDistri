@@ -9,9 +9,14 @@ import { Resource, ResourceType } from "./types.js";
 const folderMap = {
     "runtimes": ResourceType.Java,
     "forge": {
-        "core": ResourceType.ForgeCore,
-        "optional": ResourceType.ForgeModOptional,
-        "required": ResourceType.ForgeMod,
+        "core": {
+            "required": ResourceType.ForgeCoreRequired,
+            "optional": ResourceType.ForgeCoreOptional,
+        },
+        "mods": {
+            "required": ResourceType.ForgeModRequired,
+            "optional": ResourceType.ForgeModOptional,
+        },
     },
     "files": ResourceType.RootFile,
     "ressourcepacks": ResourceType.RessourcePack,
@@ -23,12 +28,12 @@ function formatFolderMap(map: Record<string, any>) {
     const formattedMap: Record<string, ResourceType> = {}
 
     for (let folder in map) {
-        if (typeof folderMap[folder] == "object") {
-            for (let subFolder in formatFolderMap(folderMap[folder])) {
-                formattedMap[path.join(folder, subFolder)] = folderMap[folder][subFolder]
+        if (typeof map[folder] == "object") {
+            for (let subFolder in formatFolderMap(map[folder])) {
+                formattedMap[path.join(folder, subFolder)] = map[folder][subFolder]
             }
         } else {
-            formattedMap[folder] = folderMap[folder]
+            formattedMap[folder] = map[folder]
         }
     }
 

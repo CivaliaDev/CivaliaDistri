@@ -1,14 +1,15 @@
 export enum ResourceType {
     RootFile = "RootFile",
     Java = "Java",
+    ForgeModRequired = "ForgeModRequired",
     ForgeModOptional = "ForgeModOptional",
-    ForgeMod = "ForgeMod",
-    ForgeCore = "ForgeCore",
+    ForgeCoreRequired = "ForgeCoreRequired",
+    ForgeCoreOptional = "ForgeCoreOptional",
     RessourcePack = "RessourcePack",
     ShaderPack = "ShaderPack",
     ConfigElement = "ConfigElement",
     Unknown = "Unknown"
-}
+}   
 
 export type Artifact = {
     size: number,
