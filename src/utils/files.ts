@@ -72,7 +72,7 @@ export async function getResources(folder: string) {
                 const relativeUrlRequired = path.relative(env.ROOT, elementPath);
                 const fileUrl = path.join(env.BASE_URL, "distro", relativeUrlRequired).replace(/\\(?!civalia)/gi, '/').replace(/\\/gi, '//');
 
-                const type = formattedFolderMap[baseFolder] ?? ResourceType.Unknown;
+                const type = formattedFolderMap[Object.keys(formattedFolderMap).sort((a, b) => b.split(path.sep).length - a.split(path.sep).length).find(p => baseFolder.includes(p))!] ?? ResourceType.Unknown;
 
                 const file = {
                     id: fileId,
