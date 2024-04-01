@@ -49,7 +49,7 @@ for (let currentFolder in formattedFolderMap) {
     if (!existsSync(folderPath)) await fs.mkdir(folderPath, { recursive: true })
 }
 
-export async function getResources(folder: string) {
+export async function fetchResources(folder: string) {
     try {
         const javaInfo = await readJavaInfoFile()
 
@@ -97,5 +97,31 @@ export async function getResources(folder: string) {
         }
 
         return []
+    }
+}
+
+const resourcesCahePath = path.join("public", "cache", "resources.json")
+
+export async function cacheResources(resources: Resource[]) {
+    if (!existsSync(resourcesCahePath)) await fs.mkdir(path.dirname(resourcesCahePath), { recursive: true })
+
+    await fs.writeFile(resourcesCahePath, JSON.stringify(resources, null, 2))
+}
+
+export async function getResources() {
+    try {
+        if (!existsSync(resourcesCahePath)) throw new Error("Resources cache not found")
+
+        const rawContent = await fs.readFile(resourcesCahePath, "utf-8")
+
+        const content = JSON.parse(rawContent)
+
+        return content as Resource[]
+    } catch {
+        const resources = await fetchResources(env.ROOT)
+
+        cacheResources(resources)
+
+        return resources
     }
 }

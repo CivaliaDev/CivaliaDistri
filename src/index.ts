@@ -1,8 +1,9 @@
 import fastifyStatic from "@fastify/static";
 import fastify from "fastify";
+import fs from "node:fs";
 import { ZodError } from "zod";
 import { env } from "./utils/env.js";
-import { getResources } from "./utils/files.js";
+import { cacheResources, fetchResources, getResources } from "./utils/files.js";
 import { compressJava } from "./utils/java.js";
 import { getMaintenanceState } from "./utils/maintenance.js";
 
@@ -14,8 +15,12 @@ await app.register(fastifyStatic, {
 })
 
 app.get("/distribution.json", async (req, res) => {
-    const resources = await getResources(process.env.ROOT!)
+    console.time("get /distribution.json " + req.id)
+
+    const resources = await getResources()
     const maintenanceState = getMaintenanceState()
+
+    console.timeEnd("get /distribution.json " + req.id)
 
     return {
         maintenance: maintenanceState,
@@ -33,6 +38,23 @@ app.setErrorHandler((error, req, res) => {
     }
 
     throw error
+})
+
+let watchTimeout: NodeJS.Timeout | null = null;
+
+fs.watch(env.ROOT, { recursive: true }, (event, filename) => {
+    if (watchTimeout) {
+        clearTimeout(watchTimeout)
+        watchTimeout = null
+    }
+
+    watchTimeout = setTimeout(async () => {
+        console.log("[ResourcesManager] Regenerating cache")
+
+        const resources = await fetchResources(process.env.ROOT!)
+        
+        cacheResources(resources)
+    }, 500)
 })
 
 compressJava()
