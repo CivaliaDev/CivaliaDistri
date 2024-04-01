@@ -1,6 +1,3 @@
 /node_modules/
-/distro/
-/build/
 .env
-
-package-lock.json
+/dist/

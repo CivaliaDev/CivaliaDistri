@@ -1,19 +1,26 @@
 {
-  "name": "civaliadistri",
+  "name": "civalia-distro",
   "version": "1.0.0",
-  "private": false,
+  "description": "",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node .",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "archiver": "^5.3.1",
-    "child_process": "^1.0.2",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "fs-extra": "^11.1.1",
-    "node-stream-zip": "^1.15.0",
-    "path": "^0.12.7",
-    "ws": "^8.13.0",
-    "yargs": "^17.7.2"
-  }
+    "adm-zip": "^0.5.12",
+    "checksum": "^1.0.0",
+    "dotenv": "^16.4.5",
+    "fastify": "^4.26.2",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.5",
+    "@types/checksum": "^0.1.35",
+    "@types/node": "^20.12.2"
+  },
+  "type": "module"
 }

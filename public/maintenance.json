@@ -1,0 +1,13 @@
+{
+    "active": false,
+    "playersAllowed": [
+        {
+            "name": "Nokaji",
+            "uuid": "7307f72e6cb74d349d3976ed1901288d"
+        },
+        {
+            "name": "ddemile10",
+            "uuid": "c47d55ed2dd74978bce891d7472d5d3d"
+        }
+    ]
+}
