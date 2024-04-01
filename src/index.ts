@@ -7,6 +7,15 @@ import { cacheResources, fetchResources, getResources } from "./utils/files.js";
 import { compressJava } from "./utils/java.js";
 import { getMaintenanceState } from "./utils/maintenance.js";
 
+process.on("uncaughtException", (error) => {
+    if (error.message.startsWith("ENOENT:")) {
+        fetchResources(env.ROOT).then(cacheResources)
+        return
+    };
+
+    throw error;
+})
+
 const app = fastify()
 
 await app.register(fastifyStatic, {
