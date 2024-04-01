@@ -47,11 +47,13 @@ fs.watch(env.ROOT, { recursive: true }, (event, filename) => {
     watchTimeout = setTimeout(async () => {
         console.log("[ResourcesManager] Regenerating cache")
 
-        const resources = await fetchResources(process.env.ROOT!)
+        const resources = await fetchResources(env.ROOT)
         
         cacheResources(resources)
     }, 500)
 })
+
+fetchResources(env.ROOT).then(cacheResources)
 
 compressJava()
 
