@@ -11,3 +11,9 @@ export const maintenanceSchema = z.object({
 })
 
 export type MainteanceSchema = z.infer<typeof maintenanceSchema>
+
+export const javaInfoSchema = z.object({
+    path: z.string(),
+    size: z.number(),
+    checksum: z.string()
+})
