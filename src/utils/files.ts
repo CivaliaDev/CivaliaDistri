@@ -59,6 +59,11 @@ export async function fetchResources(folder: string) {
         for (let element of elements) {
             const elementPath = path.join(folder, element)
 
+            console.log("------------------")
+            console.log(element)
+            console.log(elementPath)
+            console.log("exists", existsSync(elementPath))
+
             if (!existsSync(elementPath)) continue
 
             const stat = await fs.stat(elementPath);
