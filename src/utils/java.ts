@@ -6,16 +6,22 @@ import { env } from "./env.js";
 import { runtimesDir } from "./paths.js";
 import { javaInfoSchema } from "./schemas.js";
 
+export const infoFilePath = path.join("public", "java_info.json")
+
+export async function readJavaInfoFile() {
+  const rawContent = await fs.promises.readFile(infoFilePath, "utf-8")
+
+  const data = javaInfoSchema.parse(JSON.parse(rawContent))
+
+  return data
+}
+
 export async function compressJava() {
-  const infoFilePath = path.join("public", "java_info.json");
-
   if (fs.existsSync(infoFilePath)) {
-    const rawContent = await fs.promises.readFile(infoFilePath, "utf-8")
-
     try {
-      const data = javaInfoSchema.parse(JSON.parse(rawContent))
+      const data = await readJavaInfoFile()
 
-      if (data.size == await getJavaSize()) return console.log("Java is already compressed")
+      if (data.size == await getJavaSize()) return
     } catch {
       await fs.promises.rm(infoFilePath)
     }
@@ -39,7 +45,7 @@ export async function compressJava() {
       "path": archiveDestination,
       "size": await getJavaSize(),
       "checksum": await checksum(archiveDestination)
-    }, 
+    },
     null, 2))
 }
 

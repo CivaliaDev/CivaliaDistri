@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import checksum from "./checksum.js";
 import { env } from "./env.js";
-import { getJavaSize } from "./java.js";
+import { readJavaInfoFile } from "./java.js";
 import { Resource, ResourceType } from "./types.js";
 
 const folderMap = {
@@ -51,6 +51,8 @@ for (let currentFolder in formattedFolderMap) {
 
 export async function getResources(folder: string) {
     try {
+        const javaInfo = await readJavaInfoFile()
+
         const elements = await fs.readdir(folder, { recursive: true })
         const files: Resource[] = []
 
@@ -79,7 +81,7 @@ export async function getResources(folder: string) {
                     artifact: {
                         extension,
                         md5: await checksum(elementPath),
-                        size: type == ResourceType.Java ? await getJavaSize() : stat.size,
+                        size: type == ResourceType.Java ? javaInfo.size : stat.size,
                         url: fileUrl
                     }
                 } satisfies Resource
