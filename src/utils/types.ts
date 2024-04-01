@@ -3,9 +3,10 @@ export enum ResourceType {
     Java = "Java",
     ForgeModOptional = "ForgeModOptional",
     ForgeMod = "ForgeMod",
-    ForgeVersion = "ForgeVersion",
+    ForgeCore = "ForgeCore",
     RessourcePack = "RessourcePack",
     ShaderPack = "ShaderPack",
+    ConfigElement = "ConfigElement",
     Unknown = "Unknown"
 }
 

@@ -10,9 +10,10 @@ const folderMap = {
     "optional": ResourceType.ForgeModOptional,
     "runtimes": ResourceType.Java,
     "files": ResourceType.RootFile,
-    "version": ResourceType.ForgeVersion,
+    "core": ResourceType.ForgeCore,
     "ressourcepacks": ResourceType.RessourcePack,
-    "shaderpacks": ResourceType.ShaderPack
+    "shaderpacks": ResourceType.ShaderPack,
+    "config": ResourceType.ConfigElement
 } as Record<string, ResourceType>
 
 export async function getResources(folder: string) {
