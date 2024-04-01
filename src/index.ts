@@ -2,7 +2,7 @@ import fastifyStatic from "@fastify/static";
 import fastify from "fastify";
 import { ZodError } from "zod";
 import { env } from "./utils/env.js";
-import { getRessources } from "./utils/files.js";
+import { getResources } from "./utils/files.js";
 import { compressJava } from "./utils/java.js";
 import { getMaintenanceState } from "./utils/maintenance.js";
 
@@ -14,12 +14,12 @@ await app.register(fastifyStatic, {
 })
 
 app.get("/build/distribution.json", async (req, res) => {
-    const ressources = await getRessources(process.env.ROOT!)
+    const resources = await getResources(process.env.ROOT!)
     const maintenanceState = getMaintenanceState()
 
     return {
         maintenance: maintenanceState,
-        ressources
+        resources
     }
 })
 

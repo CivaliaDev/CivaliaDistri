@@ -15,7 +15,7 @@ const folderMap = {
     "shaderpacks": RessourceType.ShaderPack
 } as Record<string, RessourceType>
 
-export async function getRessources(folder: string) {
+export async function getResources(folder: string) {
     try {
         const elements = await fs.readdir(folder, { recursive: true })
         const files: Ressource[] = []
