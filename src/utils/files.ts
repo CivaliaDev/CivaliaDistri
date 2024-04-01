@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import checksum from "./checksum.js";
@@ -6,17 +7,44 @@ import { getJavaSize } from "./java.js";
 import { Resource, ResourceType } from "./types.js";
 
 const folderMap = {
-    "required": ResourceType.ForgeMod,
-    "optional": ResourceType.ForgeModOptional,
     "runtimes": ResourceType.Java,
+    "forge": {
+        "core": ResourceType.ForgeCore,
+        "optional": ResourceType.ForgeModOptional,
+        "required": ResourceType.ForgeMod,
+    },
     "files": ResourceType.RootFile,
-    "core": ResourceType.ForgeCore,
     "ressourcepacks": ResourceType.RessourcePack,
     "shaderpacks": ResourceType.ShaderPack,
     "config": ResourceType.ConfigElement
-} as Record<string, ResourceType>
+} as Record<string, any>
+
+function formatFolderMap(map: Record<string, any>) {
+    const formattedMap: Record<string, ResourceType> = {}
+
+    for (let folder in map) {
+        if (typeof folderMap[folder] == "object") {
+            for (let subFolder in formatFolderMap(folderMap[folder])) {
+                formattedMap[path.join(folder, subFolder)] = folderMap[folder][subFolder]
+            }
+        } else {
+            formattedMap[folder] = folderMap[folder]
+        }
+    }
+
+    return formattedMap
+}
+
+const formattedFolderMap = formatFolderMap(folderMap)
+
+for (let currentFolder in formattedFolderMap) {
+    const folderPath = path.join(env.ROOT, currentFolder)
+
+    if (!existsSync(folderPath)) await fs.mkdir(folderPath, { recursive: true })
+}
 
 export async function getResources(folder: string) {
+
     try {
         const elements = await fs.readdir(folder, { recursive: true })
         const files: Resource[] = []
@@ -29,7 +57,7 @@ export async function getResources(folder: string) {
             if (stat.isFile() && path.basename(elementPath) !== ".htaccess") {
                 const extension = path.extname(elementPath);
 
-                const baseFolder = path.relative(folder, elementPath).split(path.sep)[0];
+                const baseFolder = path.dirname(path.relative(folder, elementPath));
                 
                 const fileName = path.basename(element.split(`${extension}`).join(''));
                 const fileId = fileName.toLowerCase().replace(/\s/g, '');
@@ -37,7 +65,7 @@ export async function getResources(folder: string) {
                 const relativeUrlRequired = path.relative(env.ROOT, elementPath);
                 const fileUrl = path.join(env.BASE_URL, "distro", relativeUrlRequired).replace(/\\(?!civalia)/gi, '/').replace(/\\/gi, '//');
 
-                const type = folderMap[baseFolder] ?? ResourceType.Unknown;
+                const type = formattedFolderMap[baseFolder] ?? ResourceType.Unknown;
 
                 const file = {
                     id: fileId,
