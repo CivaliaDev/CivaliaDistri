@@ -29,8 +29,9 @@ function formatFolderMap(map: Record<string, any>) {
 
     for (let folder in map) {
         if (typeof map[folder] == "object") {
-            for (let subFolder in formatFolderMap(map[folder])) {
-                formattedMap[path.join(folder, subFolder)] = map[folder][subFolder]
+            const subFolderMap = formatFolderMap(map[folder])
+            for (let subFolder in subFolderMap) {
+                formattedMap[path.join(folder, subFolder)] = subFolderMap[subFolder]
             }
         } else {
             formattedMap[folder] = map[folder]
@@ -49,7 +50,6 @@ for (let currentFolder in formattedFolderMap) {
 }
 
 export async function getResources(folder: string) {
-
     try {
         const elements = await fs.readdir(folder, { recursive: true })
         const files: Resource[] = []
