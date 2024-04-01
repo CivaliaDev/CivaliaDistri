@@ -1,4 +1,4 @@
-export enum RessourceType {
+export enum ResourceType {
     RootFile = "RootFile",
     Java = "Java",
     ForgeModOptional = "ForgeModOptional",
@@ -16,9 +16,9 @@ export type Artifact = {
     extension: string
 }
 
-export type Ressource = {
+export type Resource = {
     id: string,
     name: string,
-    type: RessourceType,
+    type: ResourceType,
     artifact: Artifact
 }

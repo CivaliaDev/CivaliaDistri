@@ -3,22 +3,22 @@ import path from "node:path";
 import checksum from "./checksum.js";
 import { env } from "./env.js";
 import { getJavaSize } from "./java.js";
-import { Ressource, RessourceType } from "./types.js";
+import { Resource, ResourceType } from "./types.js";
 
 const folderMap = {
-    "required": RessourceType.ForgeMod,
-    "optional": RessourceType.ForgeModOptional,
-    "runtimes": RessourceType.Java,
-    "files": RessourceType.RootFile,
-    "version": RessourceType.ForgeVersion,
-    "ressourcepacks": RessourceType.RessourcePack,
-    "shaderpacks": RessourceType.ShaderPack
-} as Record<string, RessourceType>
+    "required": ResourceType.ForgeMod,
+    "optional": ResourceType.ForgeModOptional,
+    "runtimes": ResourceType.Java,
+    "files": ResourceType.RootFile,
+    "version": ResourceType.ForgeVersion,
+    "ressourcepacks": ResourceType.RessourcePack,
+    "shaderpacks": ResourceType.ShaderPack
+} as Record<string, ResourceType>
 
 export async function getResources(folder: string) {
     try {
         const elements = await fs.readdir(folder, { recursive: true })
-        const files: Ressource[] = []
+        const files: Resource[] = []
 
         for (let element of elements) {
             const elementPath = path.join(folder, element)
@@ -36,7 +36,7 @@ export async function getResources(folder: string) {
                 const relativeUrlRequired = path.relative(env.ROOT, elementPath);
                 const fileUrl = path.join(env.BASE_URL, "distro", relativeUrlRequired).replace(/\\(?!civalia)/gi, '/').replace(/\\/gi, '//');
 
-                const type = folderMap[path.basename(currentFolder)] ?? RessourceType.Unknown;
+                const type = folderMap[path.basename(currentFolder)] ?? ResourceType.Unknown;
 
                 const file = {
                     id: fileId,
@@ -45,10 +45,10 @@ export async function getResources(folder: string) {
                     artifact: {
                         extension,
                         md5: await checksum(elementPath),
-                        size: type == RessourceType.Java ? await getJavaSize() : stat.size,
+                        size: type == ResourceType.Java ? await getJavaSize() : stat.size,
                         url: fileUrl
                     }
-                } satisfies Ressource
+                } satisfies Resource
 
                 files.push(file)
             }
