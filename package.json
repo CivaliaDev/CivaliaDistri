@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "node .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -20,7 +20,8 @@
   "devDependencies": {
     "@types/adm-zip": "^0.5.5",
     "@types/checksum": "^0.1.35",
-    "@types/node": "^20.12.2"
+    "@types/node": "^20.12.2",
+    "typescript": "^5.4.3"
   },
   "type": "module"
 }
