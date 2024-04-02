@@ -1,11 +1,14 @@
-import fastifyStatic from "@fastify/static";
-import fastify from "fastify";
+import { Hono } from "hono";
 import fs from "node:fs";
+import path from "node:path";
 import { ZodError } from "zod";
 import { env } from "./utils/env.js";
 import { cacheResources, fetchResources, getResources } from "./utils/files.js";
 import { compressJava } from "./utils/java.js";
 import { getMaintenanceState } from "./utils/maintenance.js";
+import { isRunningOnBun } from "./utils/runtime.js";
+
+const { serveStatic } = isRunningOnBun() ? await import("hono/bun") : await import("@hono/node-server/serve-static")
 
 process.on("uncaughtException", (error) => {
     if (error.message.startsWith("ENOENT:")) {
@@ -16,33 +19,42 @@ process.on("uncaughtException", (error) => {
     throw error;
 })
 
-const app = fastify()
+const app = new Hono()
 
-await app.register(fastifyStatic, {
-    root: env.ROOT,
-    prefix: "/distro/"
-})
+const root = path.relative(process.cwd(), env.ROOT)
 
-app.get("/distribution.json", async (req, res) => {
+if (root.startsWith("..")) throw new Error("Root path is not relative")
+
+app.use('/distro/*', serveStatic({
+    root,
+    rewriteRequestPath: (p) => p.replace("/distro","")
+}))
+
+app.get("/distribution.json", async (c) => {
     const resources = await getResources()
     const maintenanceState = getMaintenanceState()
 
-    return {
+    return c.json({
         maintenance: maintenanceState,
         resources
-    }
+    })
 })
 
-app.setErrorHandler((error, req, res) => {
-    if (error instanceof ZodError) {
-        throw {
-            statusCode: 500,
-            error: "ZodError",
-            message: JSON.parse(error.message)
-        }
+app.onError((err, c) => {
+    c.status(500)
+
+    const response = {
+        statusCode: 500,
+        error: "Error",
+        message: err.message
     }
 
-    throw error
+    if (response instanceof ZodError) {
+        response.error
+        response.message = JSON.stringify(response.message)
+    }
+
+    return c.json(response)
 })
 
 let watchTimeout: NodeJS.Timeout | null = null;
@@ -57,7 +69,7 @@ fs.watch(env.ROOT, { recursive: true }, (event, filename) => {
         console.log("[ResourcesManager] Regenerating cache")
 
         const resources = await fetchResources(env.ROOT)
-        
+
         cacheResources(resources)
     }, 500)
 })
@@ -66,4 +78,16 @@ fetchResources(env.ROOT).then(cacheResources)
 
 compressJava()
 
-app.listen({ port: 3001, host: "::" }, () => console.log("Listening on port 3001"))
+const honoConfig = {
+    port: Number(process.env.PORT) || 3001,
+    fetch: app.fetch
+}
+
+if (!isRunningOnBun()) {
+    import("@hono/node-server").then(({ serve }) => {
+        serve(honoConfig)
+        console.log(`Listening on port ${honoConfig.port}`)
+    })
+} else console.log(`Listening on port ${honoConfig.port}`)
+
+export default honoConfig
