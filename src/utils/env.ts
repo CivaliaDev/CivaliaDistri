@@ -10,4 +10,4 @@ const envSchema = z.object({
     JAVA: z.string()
 })
 
-export const env = envSchema.parse(process.env)
+export const env = Object.entries(envSchema.parse(process.env)).reduce((acc, [key, value]) => ({ ...acc, [key]: value.replace(/"(.*)"/, "$1") }), {} as z.infer<typeof envSchema>)
