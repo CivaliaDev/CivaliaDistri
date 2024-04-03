@@ -9,6 +9,7 @@ import { getMaintenanceState } from "./utils/maintenance.js";
 import { isRunningOnBun } from "./utils/runtime.js";
 
 const { serveStatic } = isRunningOnBun() ? await import("hono/bun") : await import("@hono/node-server/serve-static")
+const { serve } = isRunningOnBun()? await import("bun") : await import("@hono/node-server")
 
 process.on("uncaughtException", (error) => {
     if (error.message.startsWith("ENOENT:")) {
@@ -57,7 +58,7 @@ app.onError((err, c) => {
     return c.json(response)
 })
 
-let watchTimeout: NodeJS.Timeout | null = null;
+let watchTimeout: Timer | null = null;
 
 fs.watch(env.ROOT, { recursive: true }, (event, filename) => {
     if (watchTimeout) {
@@ -83,11 +84,6 @@ const honoConfig = {
     fetch: app.fetch
 }
 
-if (!isRunningOnBun()) {
-    import("@hono/node-server").then(({ serve }) => {
-        serve(honoConfig)
-        console.log(`Listening on port ${honoConfig.port}`)
-    })
-} else console.log(`Listening on port ${honoConfig.port}`)
+serve(honoConfig)
 
-export default honoConfig
+console.log(`Listening on port ${honoConfig.port}`)

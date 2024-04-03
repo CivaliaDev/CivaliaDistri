@@ -20,6 +20,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/bun": "latest",
     "@types/adm-zip": "^0.5.5",
     "@types/checksum": "^0.1.35",
     "@types/node": "^20.12.2",
