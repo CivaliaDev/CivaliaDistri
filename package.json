@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
+  "module": "src/index.ts",
   "scripts": {
     "start": "node .",
-    "bun:start": "bun src/index.ts",
+    "bun:start": "bun .",
     "build": "tsc"
   },
   "keywords": [],

@@ -2,10 +2,10 @@ import { Hono } from "hono";
 import fs from "node:fs";
 import path from "node:path";
 import { ZodError } from "zod";
+import distributionApp from "./routes/distribution.js";
 import { env } from "./utils/env.js";
-import { cacheResources, fetchResources, getResources } from "./utils/files.js";
+import { cacheResources, fetchResources } from "./utils/files.js";
 import { compressJava } from "./utils/java.js";
-import { getMaintenanceState } from "./utils/maintenance.js";
 import { isRunningOnBun } from "./utils/runtime.js";
 
 const { serveStatic } = isRunningOnBun() ? await import("hono/bun") : await import("@hono/node-server/serve-static")
@@ -21,6 +21,7 @@ process.on("uncaughtException", (error) => {
 })
 
 const app = new Hono()
+    .route("/", distributionApp)
 
 const root = path.relative(process.cwd(), env.ROOT)
 
@@ -28,18 +29,8 @@ if (root.startsWith("..")) throw new Error("Root path is not relative")
 
 app.use('/distro/*', serveStatic({
     root,
-    rewriteRequestPath: (p) => p.replace("/distro","")
+    rewriteRequestPath: (p) => p.replace("/distro", "")
 }))
-
-app.get("/distribution.json", async (c) => {
-    const resources = await getResources()
-    const maintenanceState = getMaintenanceState()
-
-    return c.json({
-        maintenance: maintenanceState,
-        resources
-    })
-})
 
 app.onError((err, c) => {
     c.status(500)
@@ -87,3 +78,5 @@ const honoConfig = {
 serve(honoConfig)
 
 console.log(`Listening on port ${honoConfig.port}`)
+
+export type AppType = typeof app;
